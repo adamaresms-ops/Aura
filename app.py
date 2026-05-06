@@ -413,7 +413,7 @@ elif st.session_state.perfil == 'adm':
                 with open(RESPONSES_FILE, "rb") as f:
                     st.download_button("📥 Baixar Resultados (CSV)", f, file_name="respostas_backup.csv")
         
-        st.write("---")
+    with tab_quest:
         st.subheader("📁 Gestão de Arquivos de Provas")
         uploaded_file = st.file_uploader("Anexar Prova (PDF ou DOCX)", type=["pdf", "docx"])
         if uploaded_file:
