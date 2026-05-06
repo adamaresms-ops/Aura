@@ -1,0 +1,6 @@
+streamlit
+pandas
+plotly
+pymupdf
+python-docx
+st-gsheets-connection
