@@ -256,7 +256,7 @@ if 'respostas_aluno' not in st.session_state: st.session_state.respostas_aluno =
 
 # --- LOGIN ---
 if not st.session_state.auth_escola:
-    st.title("✨ Aura - Diagnóstico Inteligente")
+    st.title("✨ Aura - Diagnóstico Pedagógico")
     if st.text_input("Senha de Acesso:", type="password") == SENHA_ESCOLA:
         if st.button("Entrar"): st.session_state.auth_escola = True; st.rerun()
     st.stop()
