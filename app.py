@@ -4,7 +4,6 @@ import json
 import os
 import plotly.express as px
 from datetime import datetime
-import pdfplumber
 from docx import Document
 import io
 import re
