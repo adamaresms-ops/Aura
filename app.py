@@ -80,6 +80,7 @@ def extract_text_and_images_pdf(file_path):
         if any(kw in lines[0].upper() for kw in ["ESCOLA", "EREM", "DISCIPLINA", "PROFESSOR", "DATA"]):
              text = '\n'.join(lines[1:]) # Faz de novo para garantir
              
+    import base64
     for i, page in enumerate(doc):
         for img_index, img in enumerate(page.get_images(full=True)):
             xref = img[0]
@@ -87,11 +88,9 @@ def extract_text_and_images_pdf(file_path):
                 base_image = doc.extract_image(xref)
                 image_bytes = base_image["image"]
                 ext = base_image["ext"]
-                img_name = f"page{i+1}_img{img_index+1}.{ext}"
-                img_path = os.path.join(file_media_dir, img_name)
-                with open(img_path, "wb") as f:
-                    f.write(image_bytes)
-                images.append(img_path)
+                # Converte para Base64 para persistência total
+                b64_img = f"data:image/{ext};base64,{base64.b64encode(image_bytes).decode()}"
+                images.append(b64_img)
             except: continue
     return text, images
 
@@ -113,17 +112,15 @@ def extract_text_and_images_docx(file_path):
         if any(kw in lines[0].upper() for kw in ["ESCOLA", "EREM", "DISCIPLINA", "PROFESSOR", "DATA"]):
             text = '\n'.join(lines[1:])
 
-    # Extração de imagens em DOCX
-    count = 1
+    import base64
     for rel in doc.part.rels.values():
         if "image" in rel.target_ref:
-            img_data = rel.target_part.blob
-            img_name = f"img_{count}.png"
-            img_path = os.path.join(file_media_dir, img_name)
-            with open(img_path, "wb") as f:
-                f.write(img_data)
-            images.append(img_path)
-            count += 1
+            try:
+                img_data = rel.target_part.blob
+                ext = rel.target_ref.split('.')[-1]
+                b64_img = f"data:image/{ext};base64,{base64.b64encode(img_data).decode()}"
+                images.append(b64_img)
+            except: continue
             
     return text, images
 
@@ -294,7 +291,11 @@ if st.session_state.perfil == 'aluno':
                 p_limpa = q["pergunta"].replace("\n\n", "[[PAR]]").replace("\n", " ").replace("[[PAR]]", "<br><br>")
                 st.markdown(f'<div class="question-card"><span class="descriptor-text">Descritor: {q["descritor"]}</span> <span class="question-title">Questão {i+1}:</span> <span class="enunciado-text">{p_limpa}</span>', unsafe_allow_html=True)
                 if q.get('imagem'):
-                    st.image(q['imagem'])
+                    try:
+                        if q['imagem'] and (q['imagem'].startswith('data:image') or os.path.exists(q['imagem'])):
+                            st.image(q['imagem'])
+                    except:
+                        st.warning("⚠️ Imagem não disponível para esta questão.")
                 st.markdown('</div>', unsafe_allow_html=True)
                 resp = key in st.session_state.respostas_aluno
                 escolha = st.radio("Alt:", q['opcoes'], index=None, key=f"r_{key}", disabled=resp, label_visibility="collapsed")
