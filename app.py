@@ -397,6 +397,30 @@ elif st.session_state.perfil == 'adm':
                 df_aluno['Cod_Descritor'] = df_aluno['Descritor'].str.split(' - ').str[0]
                 indiv_stats = df_aluno.groupby(['Cod_Descritor', 'Resultado']).size().reset_index(name='Qtd')
                 st.plotly_chart(px.bar(indiv_stats, x='Cod_Descritor', y='Qtd', color='Resultado', barmode='group', color_discrete_map={'Acertou': '#10b981', 'Errou': '#ef4444'}), use_container_width=True)
+
+                st.markdown("---")
+                st.subheader("🗑️ Gestão de Respostas")
+                col_del1, col_del2 = st.columns(2)
+                with col_del1:
+                    aluno_para_excluir = st.selectbox("Excluir todas as respostas de:", ["Selecione..."] + alunos_lista, key="del_aluno_sel")
+                    if st.button("❌ Excluir Respostas deste Aluno"):
+                        if aluno_para_excluir != "Selecione...":
+                            df_final = df[df['Nome'] != aluno_para_excluir]
+                            df_final.to_csv(RESPONSES_FILE, index=False)
+                            if USE_CLOUD:
+                                try: conn.update(worksheet="Respostas", data=df_final)
+                                except: pass
+                            st.success(f"Respostas de {aluno_para_excluir} removidas!")
+                            st.rerun()
+                with col_del2:
+                    if st.button("🧨 LIMPAR TODOS OS RESULTADOS"):
+                        if os.path.exists(RESPONSES_FILE):
+                            os.remove(RESPONSES_FILE)
+                            if USE_CLOUD:
+                                try: conn.update(worksheet="Respostas", data=pd.DataFrame(columns=["Data", "Nome", "Turma", "Disciplina", "Descritor", "Resultado"]))
+                                except: pass
+                            st.warning("Todos os resultados foram apagados!")
+                            st.rerun()
         else: st.info("Nenhum aluno respondeu ainda.")
 
         st.markdown("---")
