@@ -14,8 +14,8 @@ import fitz  # PyMuPDF
 st.set_page_config(page_title="Aura - Diagnóstico Pedagógico", page_icon="✨", layout="wide")
 
 # Senhas
-SENHA_ESCOLA = "SAEPE2026"
-SENHA_ADM = "ADM2026"
+SENHA_ESCOLA = "Aura2024"
+SENHA_ADM = "adm2024aura"
 VERSAO_APP = "Aura 1.0 - Oficial"
 
 # Caminhos dos arquivos
